@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="bottom"
+    android:paddingBottom="100dp"
+    android:orientation="vertical"
+    android:stretchColumns="1"
+    android:fitsSystemWindows="true"
+    android:shrinkColumns="true"
+    tools:context=".MainActivity">
+    <TableRow android:layout_marginTop="5dp">
+        <TextView
+            android:id="@+id/service_enabler"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/on_text"
+            android:paddingStart="10dp"
+            android:layout_span="2"
+            android:fontFamily="monospace"
+            android:textStyle="bold"
+            android:textSize="32dp"/>
+    </TableRow>
+
+    <TableRow android:layout_marginTop="40dp">
+        <TextView
+            android:id="@+id/switch_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/switch_text"
+            android:paddingStart="10dp"
+            android:fontFamily="monospace" />
+
+        <TextView
+            android:id="@+id/switch_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/switch_value"
+            android:layout_gravity="end"
+            android:paddingEnd="10dp"
+            android:fontFamily="monospace" />
+    </TableRow>
+
+    <TableRow android:layout_marginTop="20dp">
+        <TextView
+            android:id="@+id/bind_screening_service_permission"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingStart="10dp"
+            android:text="@string/bind_screening_service_permission"
+            android:fontFamily="monospace" />
+
+        <TextView
+            android:id="@+id/bind_screening_service_permission_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/bind_screening_service_permission_value"
+            android:layout_gravity="end"
+            android:paddingEnd="10dp"
+            android:fontFamily="monospace" />
+    </TableRow>
+
+    <TableRow android:layout_marginTop="5dp">
+        <TextView
+            android:id="@+id/read_contacts_permission"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingStart="10dp"
+            android:text="@string/read_contacts_permission"
+            android:fontFamily="monospace" />
+
+        <TextView
+            android:id="@+id/read_contacts_permission_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/read_contacts_permission_value"
+            android:layout_gravity="end"
+            android:paddingEnd="10dp"
+            android:fontFamily="monospace" />
+    </TableRow>
+
+    <TableRow android:layout_marginTop="20dp">
+        <TextView
+            android:id="@+id/loaded_contacts_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingStart="10dp"
+            android:text="@string/loaded_contacts_text"
+            android:fontFamily="monospace" />
+
+        <TextView
+            android:id="@+id/loaded_contacts_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/loaded_contacts_value"
+            android:layout_gravity="end"
+            android:paddingEnd="10dp"
+            android:fontFamily="monospace" />
+    </TableRow>
+
+    <TableRow android:layout_marginTop="5dp">
+        <TextView
+            android:id="@+id/blocked_calls_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingStart="10dp"
+            android:text="@string/blocked_calls_text"
+            android:fontFamily="monospace" />
+
+        <TextView
+            android:id="@+id/blocked_calls_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/blocked_calls_value"
+            android:layout_gravity="end"
+            android:paddingEnd="10dp"
+            android:fontFamily="monospace" />
+    </TableRow>
+</TableLayout>

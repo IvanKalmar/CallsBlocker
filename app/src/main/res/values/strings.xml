@@ -1,0 +1,22 @@
+<resources>
+    <string name="app_name">Calls blocker</string>
+
+    <string name="on_text">Start blocker</string>
+    <string name="off_text">Stop blocker</string>
+
+    <string name="switch_text">Blocker running</string>
+    <string name="switch_value">False</string>
+
+    <string name="doesnt_have_required_role">Doesn\'t have required role</string>
+    <string name="doesnt_have_required_permissions">Doesn\'t have required permissions</string>
+
+    <string name="bind_screening_service_permission">Bind screening service permission:</string>
+    <string name="bind_screening_service_permission_value">False</string>
+    <string name="read_contacts_permission">Read contacts permission:</string>
+    <string name="read_contacts_permission_value">False</string>
+
+    <string name="loaded_contacts_text">Loaded numbers: </string>
+    <string name="loaded_contacts_value">0</string>
+    <string name="blocked_calls_text">Blocked calls: </string>
+    <string name="blocked_calls_value">0</string>
+</resources>
