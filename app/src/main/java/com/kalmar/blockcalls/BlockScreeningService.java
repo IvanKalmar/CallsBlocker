@@ -46,6 +46,8 @@ public class BlockScreeningService extends CallScreeningService {
         if (isIncoming) {
             String number = details.getHandle()
                     .toString()
+                    .replaceAll("%2B", "")
+                    .replaceAll("tel:", "")
                     .replaceAll("\\D", "");
             HashSet<String> numbers = this.getNumbers();
 
