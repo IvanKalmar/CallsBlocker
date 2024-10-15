@@ -1,0 +1,49 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/Widget.BlockCalls.AppWidget.Container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/widget_container"
+    android:theme="@style/Theme.BlockCalls.AppWidgetContainer">
+
+    <FrameLayout
+        android:layout_gravity="center"
+        android:foregroundGravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:layout_gravity="center"
+            android:id="@+id/widget_text_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:text="@string/zero_value"
+            android:textSize="28sp" />
+
+        <ProgressBar
+            android:layout_gravity="center"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:id="@+id/widget_progress_bar_placeholder"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/circle_shape"
+            android:progressDrawable="@drawable/green_circular_progress_bar"
+            android:progress="100"
+            android:indeterminate="false"
+            android:textAlignment="center" />
+
+        <ProgressBar
+            android:visibility="gone"
+            android:layout_gravity="center"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:id="@+id/widget_progress_bar"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/circle_shape"
+            android:progressDrawable="@drawable/amber_circular_progress_bar"
+            android:progress="100"
+            android:indeterminate="false"
+            android:textAlignment="center" />
+    </FrameLayout>
+
+</FrameLayout>

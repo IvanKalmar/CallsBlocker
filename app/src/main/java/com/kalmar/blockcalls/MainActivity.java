@@ -3,6 +3,7 @@ package com.kalmar.blockcalls;
 import static android.graphics.Color.GREEN;
 import static android.graphics.Color.RED;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.role.RoleManager;
 import android.content.Context;
@@ -10,44 +11,164 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-
-import androidx.appcompat.app.AppCompatActivity;
-
+import android.os.Handler;
+import android.os.Looper;
+import android.view.View;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
 import com.kalmar.blockcalls.databinding.ActivityMainBinding;
+import com.kalmar.blockcalls.services.WidgetCounterService;
+import com.kalmar.blockcalls.utils.CallsHelper;
+import com.kalmar.blockcalls.utils.PauseParams;
 
 public class MainActivity extends AppCompatActivity {
-    private TextView serviceEnabler, switchValue,
+    private TextView serviceEnabler, clearCallsLog, resetTimer, blockerStatusText,
             bindScreeningServicePermissionValue, readContactsPermissionValue,
-            loadedContactsValue, blockedCallsValue;
+            callsAccessPermissionValue, loadedContactsValue, blockedCallsValue;
 
     private static final int ROLE_REQUEST_ID = 1;
     private boolean ROLE_GRANTED = false;
     private boolean READ_CONTACTS_GRANTED = false;
+    private boolean CALLS_ACCESS_GRANTED = false;
 
-    public static final String APP_PREF = "com.kalmar.BlockCalls.preferences";
-    public static final String APP_PREF_ENABLED = "com.kalmar.BlockCalls.enabled";
-    public static final String APP_PREF_LOADED_NUMBERS = "com.kalmar.BlockCalls.loaded_numbers";
-    public static final String APP_PREF_BLOCKED_CALLS = "com.kalmar.BlockCalls.blocked_calls";
+    public static final String APP_PREF =
+            "com.kalmar.BlockCalls.appPreferences";
+    public static final String APP_PREF_STATUS =
+            "com.kalmar.BlockCalls.appPreferences.status";
+    public static final String APP_PREF_LOADED_NUMBERS =
+            "com.kalmar.BlockCalls.appPreferences.loadedNumbers";
+    public static final String APP_PREF_BLOCKED_CALLS =
+            "com.kalmar.BlockCalls.appPreferences.blockedCalls";
 
     private SharedPreferences preferences;
+
+    private CallsHelper callsHelper = new CallsHelper();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        try {
+            this.getSupportActionBar().hide();
+        } catch (NullPointerException e){}
+
         RoleManager roleManager = (RoleManager) getSystemService(ROLE_SERVICE);
         Intent intent = roleManager.createRequestRoleIntent(RoleManager.ROLE_CALL_SCREENING);
         startActivityForResult(intent, ROLE_REQUEST_ID);
 
-        preferences = this.getSharedPreferences(MainActivity.APP_PREF, Context.MODE_PRIVATE);
+        this.initPreferences();
+
+        com.kalmar.blockcalls.databinding.ActivityMainBinding binding =
+                ActivityMainBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+
+        this.initFields(binding);
+        this.updateFieldsValues();
+
+        this.serviceEnabler.setOnClickListener(this::onToggleBlockerClick);
+        this.clearCallsLog.setOnClickListener(this::onClearCallsClick);
+        this.resetTimer.setOnClickListener(this::onResetTimerClick);
+    }
+
+    private void onToggleBlockerClick(View view) {
         SharedPreferences.Editor editor = preferences.edit();
-        if(!preferences.contains(MainActivity.APP_PREF_ENABLED)) {
+
+        boolean buttonText = String.valueOf(
+                serviceEnabler.getText()
+        ).equals(
+                String.valueOf(getText(R.string.on_text))
+        );
+
+        if (!buttonText) {
+            editor.putInt(MainActivity.APP_PREF_STATUS, 0);
+
+            serviceEnabler.setText(R.string.on_text);
+            setBooleanFieldValue(blockerStatusText, false);
+        } else {
+            if (ROLE_GRANTED) {
+                if (READ_CONTACTS_GRANTED && CALLS_ACCESS_GRANTED) {
+                    editor.putInt(MainActivity.APP_PREF_STATUS, 1);
+
+                    serviceEnabler.setText(R.string.off_text);
+                    setBooleanFieldValue(blockerStatusText, true);
+                } else {
+                    serviceEnabler.setText(R.string.doesnt_have_required_permissions);
+                }
+            } else {
+                serviceEnabler.setText(R.string.doesnt_have_required_role);
+            }
+        }
+
+        editor.apply();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        this.updateFieldsValues();
+    }
+
+    private void onClearCallsClick(View view) {
+        callsHelper.clearCallsLog(getApplicationContext());
+        this.clearCallsLog.setText(R.string.cleared);
+        new Handler(Looper.getMainLooper()).postDelayed(() ->
+                        clearCallsLog.setText(R.string.clear_calls_log),
+                1000
+        );
+    }
+
+    private void onResetTimerClick(View view) {
+        PauseParams.getCleared().saveToPreferences(getApplicationContext());
+
+        getApplicationContext().stopService(
+                new Intent(getApplicationContext(), WidgetCounterService.class)
+        );
+
+        Intent serviceIntent = new Intent(getApplicationContext(), BlockPauseWidget.class);
+        serviceIntent.setAction(BlockPauseWidget.RECEIVE_END_COUNT);
+        getApplicationContext().sendBroadcast(serviceIntent);
+
+        this.resetTimer.setText(R.string.reseted);
+        new Handler(Looper.getMainLooper()).postDelayed(() ->
+                        resetTimer.setText(R.string.reset_timer),
+                1000
+        );
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == ROLE_REQUEST_ID) {
+            this.ROLE_GRANTED = resultCode == Activity.RESULT_OK;
+            this.setBooleanFieldValue(
+                    this.bindScreeningServicePermissionValue,
+                    resultCode == Activity.RESULT_OK
+            );
+        }
+    }
+
+    private void setBooleanFieldValue(TextView view, Boolean value) {
+        view.setText(value ? "True" : "False");
+        view.setTextColor(value ? GREEN : RED);
+    }
+
+    private void setStringFieldValue(TextView view, String value) {
+        view.setText(value);
+    }
+
+    private void initPreferences() {
+        preferences = this.getSharedPreferences(
+                MainActivity.APP_PREF,
+                Context.MODE_MULTI_PROCESS
+        );
+
+        SharedPreferences.Editor editor = preferences.edit();
+        if(!preferences.contains(MainActivity.APP_PREF_STATUS)) {
             editor.putInt(
-                    MainActivity.APP_PREF_ENABLED, 0
+                    MainActivity.APP_PREF_STATUS, 0
             );
             editor.apply();
         }
@@ -64,119 +185,64 @@ public class MainActivity extends AppCompatActivity {
             editor.apply();
         }
         editor.commit();
+    }
 
-        try {
-            this.getSupportActionBar().hide();
-        } catch (NullPointerException e){}
+    private void initFields(ActivityMainBinding binding) {
+        this.serviceEnabler = binding.serviceEnabler;
+        this.clearCallsLog = binding.clearCallsLog;
+        this.resetTimer = binding.resetTimer;
+        this.blockerStatusText = binding.switchValue;
+        this.bindScreeningServicePermissionValue = binding.bindScreeningServicePermissionValue;
+        this.readContactsPermissionValue = binding.readContactsPermissionValue;
+        this.loadedContactsValue = binding.loadedContactsValue;
+        this.callsAccessPermissionValue = binding.callsAccessPermissionValue;
+        this.blockedCallsValue = binding.blockedCallsValue;
 
-        com.kalmar.blockcalls.databinding.ActivityMainBinding binding =
-                ActivityMainBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
-
-        this.serviceEnabler
-                = (TextView) findViewById(R.id.service_enabler);
-        this.switchValue
-                = (TextView) findViewById(R.id.switch_value);
-        this.bindScreeningServicePermissionValue
-                = (TextView) findViewById(R.id.bind_screening_service_permission_value);
-        this.readContactsPermissionValue
-                = (TextView) findViewById(R.id.read_contacts_permission_value);
-        this.loadedContactsValue
-                = (TextView) findViewById(R.id.loaded_contacts_value);
-        this.blockedCallsValue
-                = (TextView) findViewById(R.id.blocked_calls_value);
-
-
-        this.serviceEnabler.setOnClickListener(view -> {
-            boolean buttonText = String.valueOf(
-                    serviceEnabler.getText()
-            ).equals(
-                    String.valueOf(getText(R.string.on_text))
-            );
-
-            if(!buttonText) {
-                stopBlockService();
-                serviceEnabler.setText(R.string.on_text);
-                setBooleanFieldValue(switchValue, false);
-            } else {
-                if(ROLE_GRANTED) {
-                    if(READ_CONTACTS_GRANTED) {
-                        startBlockService();
-                        serviceEnabler.setText(R.string.off_text);
-                        setBooleanFieldValue(switchValue, true);
-                    } else {
-                        serviceEnabler.setText(R.string.doesnt_have_required_permissions);
-                    }
-                } else {
-                    serviceEnabler.setText(R.string.doesnt_have_required_role);
-                }
-            }
-        });
-
-        this.setBooleanFieldValue(this.switchValue, false);
-        // this.setBooleanFieldValue(this.bindScreeningServiceStatusValue, false);
+        this.setBooleanFieldValue(this.blockerStatusText, false);
         this.setBooleanFieldValue(this.bindScreeningServicePermissionValue, false);
         this.setBooleanFieldValue(this.readContactsPermissionValue, false);
+        this.setBooleanFieldValue(this.callsAccessPermissionValue, false);
+    }
+
+    private void updateFieldsValues() {
         this.setStringFieldValue(
                 this.loadedContactsValue,
                 String.valueOf(preferences.getInt(
-                        MainActivity.APP_PREF_LOADED_NUMBERS, 0)));
+                        MainActivity.APP_PREF_LOADED_NUMBERS, 0))
+        );
+
         this.setStringFieldValue(
                 this.blockedCallsValue,
                 String.valueOf(preferences.getInt(
                         MainActivity.APP_PREF_BLOCKED_CALLS, 0)));
 
-        if(preferences.getInt(MainActivity.APP_PREF_ENABLED, 0) != 0) {
+        if(preferences.getInt(MainActivity.APP_PREF_STATUS, 0) != 0) {
             this.setStringFieldValue(
                     this.serviceEnabler,
                     String.valueOf(getText(R.string.off_text))
             );
-            this.setBooleanFieldValue(this.switchValue, true);
+            this.setBooleanFieldValue(this.blockerStatusText, true);
         }
 
+        READ_CONTACTS_GRANTED = checkReadContactsPermission();
+        this.setBooleanFieldValue(this.readContactsPermissionValue, READ_CONTACTS_GRANTED);
+
+        CALLS_ACCESS_GRANTED = this.checkReadCallsPermission();
+        this.setBooleanFieldValue(this.callsAccessPermissionValue, CALLS_ACCESS_GRANTED);
+    }
+
+    private boolean checkReadCallsPermission() {
+        int readCallsPermission = ContextCompat.checkSelfPermission(
+                this, Manifest.permission.READ_CALL_LOG);
+        int writeCallsPermission = ContextCompat.checkSelfPermission(
+                this, Manifest.permission.WRITE_CALL_LOG);
+        return  (readCallsPermission == PackageManager.PERMISSION_GRANTED) &&
+                (writeCallsPermission == PackageManager.PERMISSION_GRANTED);
+    }
+
+    private boolean checkReadContactsPermission() {
         int readContactsPermission = ContextCompat.checkSelfPermission(
                 this, android.Manifest.permission.READ_CONTACTS);
-        READ_CONTACTS_GRANTED = readContactsPermission == PackageManager.PERMISSION_GRANTED;
-        this.setBooleanFieldValue(
-                this.readContactsPermissionValue,
-                READ_CONTACTS_GRANTED
-        );
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == ROLE_REQUEST_ID) {
-            this.ROLE_GRANTED = resultCode == Activity.RESULT_OK;
-            this.setBooleanFieldValue(
-                    this.bindScreeningServicePermissionValue,
-                    resultCode == Activity.RESULT_OK
-            );
-        }
-    }
-
-    private void startBlockService() {
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putInt(MainActivity.APP_PREF_ENABLED, 1);
-        editor.apply();
-
-        this.setBooleanFieldValue(this.switchValue, true);
-    }
-
-    private void stopBlockService() {
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putInt(MainActivity.APP_PREF_ENABLED, 0);
-        editor.apply();
-
-        this.setBooleanFieldValue(this.switchValue, false);
-    }
-
-    private void setBooleanFieldValue(TextView view, Boolean value) {
-        view.setText(value ? "True" : "False");
-        view.setTextColor(value ? GREEN : RED);
-    }
-
-    private void setStringFieldValue(TextView view, String value) {
-        view.setText(value);
+        return readContactsPermission == PackageManager.PERMISSION_GRANTED;
     }
 }

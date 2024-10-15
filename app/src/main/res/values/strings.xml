@@ -4,19 +4,30 @@
     <string name="on_text">Start blocker</string>
     <string name="off_text">Stop blocker</string>
 
-    <string name="switch_text">Blocker running</string>
-    <string name="switch_value">False</string>
+    <string name="blocker_status_text">Blocker status</string>
+
+    <string name="clear_calls_log">Clear calls log</string>
+
+    <string name="reset_timer">Reset pause timer</string>
+
+    <string name="bind_screening_service_permission">Set as screening service:</string>
+    <string name="read_contacts_permission">Read contacts permission:</string>
+    <string name="calls_access_permission">Read calls permission:</string>
 
     <string name="doesnt_have_required_role">Doesn\'t have required role</string>
     <string name="doesnt_have_required_permissions">Doesn\'t have required permissions</string>
 
-    <string name="bind_screening_service_permission">Bind screening service permission:</string>
-    <string name="bind_screening_service_permission_value">False</string>
-    <string name="read_contacts_permission">Read contacts permission:</string>
-    <string name="read_contacts_permission_value">False</string>
-
     <string name="loaded_contacts_text">Loaded numbers: </string>
-    <string name="loaded_contacts_value">0</string>
     <string name="blocked_calls_text">Blocked calls: </string>
-    <string name="blocked_calls_value">0</string>
+
+    <string name="state_true">True</string>
+    <string name="state_false">False</string>
+    <string name="state_paused">Paused</string>
+
+    <string name="cleared">Cleared!</string>
+    <string name="reseted">Reseted!</string>
+
+    <string name="zero_value">0</string>
+
+    <string name="app_widget_description">Pause blocking calls</string>
 </resources>
