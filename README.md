@@ -15,6 +15,6 @@ Required read contacts, read and write calls list permissions, and bind as scree
 
 ## Screenshot
 <p align="center">
-	<img src="https://github.com/IvanKalmar/block-calls/blob/master/Screenshot.png" style="width: 250px;"/>
+	<img src="https://github.com/IvanKalmar/block-calls/blob/master/Screenshot.png" style="width: 350px;"/>
 </p>
 
