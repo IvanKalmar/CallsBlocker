@@ -1,11 +1,14 @@
 package com.kalmar.blockcalls.utils;
 
+import static android.content.ContentValues.TAG;
+
 import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
 import android.provider.CallLog;
 import android.provider.ContactsContract;
+import android.util.Log;
 
 import java.util.HashSet;
 import java.util.List;
@@ -64,7 +67,7 @@ public class CallsHelper {
                 if(!contactNumbers.contains(this.processNumber(callsLog.get(i)))) {
                     context.getContentResolver().delete(
                             CallLog.Calls.CONTENT_URI,
-                            "number='" + callsLog.get(i) + "'",
+                            "number LIKE '%" + callsLog.get(i) + "%'",
                             null
                     );
                 }

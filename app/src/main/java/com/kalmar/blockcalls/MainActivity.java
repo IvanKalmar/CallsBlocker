@@ -112,12 +112,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void onClearCallsClick(View view) {
-        callsHelper.clearCallsLog(getApplicationContext());
-        this.clearCallsLog.setText(R.string.cleared);
-        new Handler(Looper.getMainLooper()).postDelayed(() ->
-                        clearCallsLog.setText(R.string.clear_calls_log),
-                1000
-        );
+        if (READ_CONTACTS_GRANTED && CALLS_ACCESS_GRANTED) {
+            callsHelper.clearCallsLog(getApplicationContext());
+            this.clearCallsLog.setText(R.string.cleared);
+            new Handler(Looper.getMainLooper()).postDelayed(() ->
+                            clearCallsLog.setText(R.string.clear_calls_log),
+                    1000
+            );
+        }
     }
 
     private void onResetTimerClick(View view) {
